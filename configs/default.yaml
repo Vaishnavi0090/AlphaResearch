@@ -1,0 +1,53 @@
+# Example configuration overriding finrisk.config.settings defaults.
+# Load with:
+#   import yaml; from finrisk.config.settings import Settings
+#   Settings(**yaml.safe_load(open("configs/default.yaml")))
+#
+# Secrets are NEVER stored here — API keys come from the environment (.env).
+
+data:
+  provider: synthetic        # or "yfinance" for real prices
+  benchmark: BENCH
+  start: "2010-01-04"
+  end: "2024-12-31"
+  synthetic_seed: 7
+  synthetic_assets: 40
+  fundamental_publication_lag_days: 90
+  risk_free_annual: 0.02
+
+factors:
+  composite_weights:
+    momentum: 0.30          # see docs/RESEARCH_REPORT.md Finding 7 —
+    value: 0.25             # this prior is mis-specified for the synthetic DGP
+    quality: 0.25           # and is deliberately NOT tuned on the eval data
+    risk: 0.20
+  winsorize_quantile: 0.02
+
+regimes:
+  n_states: 3
+  refit_every: 252
+  train_min_obs: 504
+
+portfolio:
+  top_n: 10
+  max_weight: 0.20
+  max_sector_weight: 0.40
+  target_volatility: 0.15
+  max_cvar_95: 0.025
+  covariance_estimator: ledoit_wolf
+  covariance_lookback: 504
+
+backtest:
+  rebalance_frequency: M     # W | M | Q
+  warmup: 504
+  execution_lag_days: 1      # must be >= 1; 0 is rejected at construction
+  costs:
+    commission_bps: 5.0
+    spread_bps: 5.0
+    slippage_bps: 0.0
+
+agents:
+  llm_provider: stub         # "anthropic" requires ANTHROPIC_API_KEY
+  model: claude-sonnet-4-6
+  temperature: 0.0
+  enable_investment_committee: true

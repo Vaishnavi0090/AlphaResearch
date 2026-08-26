@@ -1,0 +1,73 @@
+[
+  {
+    "name": "fundamental_availability",
+    "passed": true,
+    "severity": "error",
+    "detail": "560 records; 0 available before period end. Publication lag median 62d, range [45, 75]d.",
+    "evidence": {
+      "n_records": 560,
+      "n_violations": 0,
+      "median_lag_days": 62.5
+    }
+  },
+  {
+    "name": "asof_accessor",
+    "passed": true,
+    "severity": "error",
+    "detail": "sampled 12 dates; 0 returned unpublished filings",
+    "evidence": {
+      "n_sampled": 12,
+      "violations": 0
+    }
+  },
+  {
+    "name": "factor_truncation_invariance",
+    "passed": true,
+    "severity": "error",
+    "detail": "max absolute difference between full-sample and truncated factor values across 6 dates: 0.000e+00",
+    "evidence": {
+      "max_abs_diff": 0.0
+    }
+  },
+  {
+    "name": "cross_sectional_normalisation",
+    "passed": true,
+    "severity": "error",
+    "detail": "per-date normalised panels have |mean| <= 2.61e-15 and |std - 1| <= 0.000, consistent with normalisation inside each date's cross-section rather than pooled across history (winsorization accounts for the small std deviation).",
+    "evidence": {
+      "max_abs_mean": 2.6145752229922437e-15,
+      "max_std_deviation": 3.3306690738754696e-16
+    }
+  },
+  {
+    "name": "regime_causality",
+    "passed": true,
+    "severity": "error",
+    "detail": "filtered state at 2018-12-05 is 'risk_on_low_vol' (conf 0.997) whether or not future data is present (full-sample: 'risk_on_low_vol', conf 0.997). Max |filtered - smoothed| = 0.864, confirming smoothing genuinely uses future information and is therefore excluded.",
+    "evidence": {
+      "filtered_vs_smoothed_max_diff": 0.8636738402807852,
+      "regime_stable_under_truncation": true
+    }
+  },
+  {
+    "name": "execution_lag",
+    "passed": true,
+    "severity": "error",
+    "detail": "60 rebalances; 0 executed on or before the decision date. Lag in sessions: min 1, max 1.",
+    "evidence": {
+      "n_events": 60,
+      "min_lag": 1,
+      "max_lag": 1
+    }
+  },
+  {
+    "name": "survivorship_bias",
+    "passed": true,
+    "severity": "info",
+    "detail": "synthetic universe: all 20 assets exist for the full sample by construction, so there is no survivorship bias AND no delisting risk. Real-data runs with a fixed current ticker list DO have survivorship bias.",
+    "evidence": {
+      "n_assets": 20,
+      "n_full_history": 20
+    }
+  }
+]

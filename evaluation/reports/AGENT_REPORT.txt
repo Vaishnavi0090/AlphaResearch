@@ -1,0 +1,47 @@
+Trace:
+  factor_agent: universe=40
+  market_agent: regime=risk_on_low_vol
+  fundamental_agent: 10 records
+  portfolio_agent: risk_constrained n=5
+  risk_agent: vol=0.182874
+  research_agent: llm=stub
+  explain_agent: 5 positions explained
+  committee_agent: action=proceed_with_limits
+  critic_agent: PASS (0 errors, 0 findings)
+
+Portfolio: risk_constrained, 5 positions, ex-ante vol 14.55%
+  SY29     20.00%
+  SY14     20.00%
+  SY25     20.00%
+  SY30     20.00%
+  SY34     20.00%
+
+Thesis: Portfolio of 5 positions constructed by risk_constrained. Ex-ante volatility 14.55%, realised volatility 18.29%, CVaR 95% -2.47%. Detected regime: risk_on_low_vol (confidence 0.96).
+
+Supporting:
+  - Selected names rank highest on the composite factor score: SY29 (rank 1, score 1.35), SY14 (rank 2, score 1.14), SY25 (rank 3, score 0.95)
+  - Ex-ante volatility 14.55% is within the configured risk limit; the optimiser reported the constraint as satisfied.
+  - Detected regime is risk_on_low_vol with confidence 0.96, implying an exposure multiplier of 0.99.
+Contradicting:
+  - Factor premia are estimated from a finite sample; the information coefficient used to scale alpha is small and unstable across sub-periods.
+Risk factors:
+  - One-day CVaR at 95% is -2.47%; tail losses exceed the Gaussian estimate when returns are negatively skewed.
+  - Effective number of positions is 5.00, indicating concentration despite the per-name weight cap.
+  - effective number of positions is 5.0 — portfolio is concentrated
+
+Grounded metrics: {"expected_volatility_ann": 0.145495, "expected_return_ann": 0.007739, "sharpe_ex_ante": -0.0868, "realised_volatility": 0.182874, "cvar_95": -0.024682, "var_95_hist": -0.019404, "max_drawdown": -0.309704, "effective_n": 5.0}
+Citations: 0
+
+Investment committee:
+  bull  support     The construction delivers an ex-ante Sharpe of -0.09 with volatility held to 14.55%. Walk-forward CA
+  bear  oppose      Maximum drawdown of n/a and one-day CVaR of -2.47% indicate the strategy's losses cluster. Average o
+  risk  conditional Realised volatility 18.29% against a target of 14.55%; effective N is 5.00. 1 concentration flag(s) 
+  quant conditional Signals are deterministic and reproducible from the config digest. Regime inference is filtered, not
+  -> action: proceed_with_limits
+
+Validation: PASSED (no findings)
+
+Position explanations:
+  SY29 20.0% | Contributes 20.1% of portfolio volatility on a 20.0% weight; 17.5% of tail loss in the worst 5% of days. | evidence: 2 citations
+  SY14 20.0% | Contributes 21.0% of portfolio volatility on a 20.0% weight; 19.1% of tail loss in the worst 5% of days. | evidence: 2 citations
+  SY25 20.0% | Contributes 17.0% of portfolio volatility on a 20.0% weight; 16.6% of tail loss in the worst 5% of days. | evidence: 2 citations

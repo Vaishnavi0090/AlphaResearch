@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finrisk-ai"
+version = "1.0.0"
+description = "Agentic quantitative portfolio and risk intelligence platform"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "scipy>=1.11",
+    "scikit-learn>=1.3",
+    "pydantic>=2.5",
+    "pydantic-settings>=2.1",
+    "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+agents = ["langgraph>=0.2", "langchain-core>=0.3", "anthropic>=0.39"]
+api = ["fastapi>=0.110", "uvicorn>=0.27", "httpx>=0.26"]
+app = ["streamlit>=1.30"]
+data = ["yfinance>=0.2.40", "requests>=2.31"]
+dev = ["pytest>=8.0", "pytest-cov>=4.1", "ruff>=0.6", "black>=24.0", "mypy>=1.10"]
+all = ["finrisk-ai[agents,api,app,data,dev]"]
+
+[tool.setuptools.packages.find]
+include = ["finrisk*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+filterwarnings = ["error::DeprecationWarning:finrisk.*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["E501", "N803", "N806", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["N802", "B011"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+# Docstrings in this project carry reasoning that depends on line breaks;
+# Black leaves string contents alone, which is why it is safe here.
+
+[tool.mypy]
+python_version = "3.11"
+# Pydantic ships a mypy plugin; without it every `Field(default_factory=Model)`
+# is a false positive. Enabling the plugin is the fix, not an ignore comment.
+plugins = ["pydantic.mypy"]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+# pandas and numpy return Any pervasively in their stubs, so this flag yields
+# ~17 warnings with no signal and would train everyone to ignore mypy output.
+# Every other warning below IS enabled, and the errors those surfaced were
+# fixed rather than silenced (see git history: unimported Any in retriever.py,
+# a type-shadowed variable in optimizer.py, a None deref in leakage.py).
+warn_return_any = false
+no_implicit_optional = true
+check_untyped_defs = true
+# Deliberately NOT strict: this codebase leans on pandas and numpy, whose stubs
+# are incomplete enough that `disallow_any_expr` would produce hundreds of
+# unfixable errors and train everyone to ignore the output. The settings above
+# catch the errors that indicate real bugs.
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Third-party packages without usable stubs. Listed explicitly rather than
+# blanket-ignoring, so a newly-added dependency is a deliberate decision.
+module = [
+    "sklearn.*", "scipy.*", "streamlit.*", "langgraph.*", "langchain_core.*",
+    "anthropic.*", "yfinance.*", "sentence_transformers.*",
+]
+ignore_errors = true

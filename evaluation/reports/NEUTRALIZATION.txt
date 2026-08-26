@@ -1,0 +1,38 @@
+### VALUE
+Factor Neutralisation Comparison
+========================================================================================================
+Variant                  AnnRet     Vol  Sharpe    MaxDD    |Net|  |Sector|   |Beta|
+--------------------------------------------------------------------------------------------------------
+raw                     10.67%   10.9%    0.98   -19.3%   0.0000    0.2401   0.0785
+sector_neutral           9.62%   10.1%    0.95   -18.6%   0.0000    0.0000   0.0897
+sector_beta_neutral     10.14%    9.9%    1.03   -17.9%   0.0000    0.0000   0.0000
+--------------------------------------------------------------------------------------------------------
+|Net|, |Sector| and |Beta| are realised exposures — the evidence that the
+'neutral' variants are neutral. Lower is more neutral; they are not exactly
+zero because betas are estimated with error.
+
+### QUALITY
+Factor Neutralisation Comparison
+========================================================================================================
+Variant                  AnnRet     Vol  Sharpe    MaxDD    |Net|  |Sector|   |Beta|
+--------------------------------------------------------------------------------------------------------
+raw                      5.33%    9.1%    0.58   -18.2%   0.0000    0.2305   0.0784
+sector_neutral           3.00%    9.4%    0.32   -19.6%   0.0000    0.0000   0.0801
+sector_beta_neutral      2.15%    9.5%    0.23   -21.8%   0.0000    0.0000   0.0000
+--------------------------------------------------------------------------------------------------------
+|Net|, |Sector| and |Beta| are realised exposures — the evidence that the
+'neutral' variants are neutral. Lower is more neutral; they are not exactly
+zero because betas are estimated with error.
+
+### MOMENTUM
+Factor Neutralisation Comparison
+========================================================================================================
+Variant                  AnnRet     Vol  Sharpe    MaxDD    |Net|  |Sector|   |Beta|
+--------------------------------------------------------------------------------------------------------
+raw                     -0.15%   11.2%   -0.01   -42.6%   0.0000    0.3037   0.1329
+sector_neutral           1.18%   10.4%    0.11   -44.7%   0.0000    0.0000   0.1257
+sector_beta_neutral     -0.36%    9.9%   -0.04   -44.5%   0.0000    0.0000   0.0000
+--------------------------------------------------------------------------------------------------------
+|Net|, |Sector| and |Beta| are realised exposures — the evidence that the
+'neutral' variants are neutral. Lower is more neutral; they are not exactly
+zero because betas are estimated with error.

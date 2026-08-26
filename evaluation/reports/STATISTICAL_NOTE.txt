@@ -1,0 +1,11 @@
+Benchmark: benchmark_buy_hold (Sharpe 0.46, CAGR 8.58%)
+
+A_equal_weight_universe                Sharpe  0.39  diff -0.07  approx t=-0.11  -> not distinguishable from the benchmark
+B_factor_equal_weight                  Sharpe  0.37  diff -0.09  approx t=-0.13  -> not distinguishable from the benchmark
+C_factor_regime_equal_weight           Sharpe  0.43  diff -0.03  approx t=-0.05  -> not distinguishable from the benchmark
+D_factor_mean_variance                 Sharpe  0.39  diff -0.07  approx t=-0.11  -> not distinguishable from the benchmark
+D2_factor_risk_parity                  Sharpe  0.38  diff -0.08  approx t=-0.12  -> not distinguishable from the benchmark
+E_factor_optimized_risk_constrained    Sharpe  0.50  diff +0.04  approx t=+0.06  -> not distinguishable from the benchmark
+F_finrisk_full                         Sharpe  0.57  diff +0.11  approx t=+0.16  -> not distinguishable from the benchmark
+
+Standard error of an annualised Sharpe approximated as sqrt((1 + S^2/2)/T) with T in years; the pairwise comparison assumes independence, which overstates precision because both series share market exposure. Treat these t-statistics as an upper bound on confidence, not a formal test.

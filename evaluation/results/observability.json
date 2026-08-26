@@ -1,0 +1,38 @@
+{
+  "total_ms": 56295.4,
+  "n_spans": 7,
+  "slowest": [
+    {
+      "name": "benchmark_suite",
+      "ms": 18393.7
+    },
+    {
+      "name": "ablation",
+      "ms": 18292.0
+    },
+    {
+      "name": "leakage_audit",
+      "ms": 14437.5
+    },
+    {
+      "name": "regime_path",
+      "ms": 4679.6
+    },
+    {
+      "name": "build_corpus",
+      "ms": 349.7
+    },
+    {
+      "name": "load_bundle",
+      "ms": 110.0
+    },
+    {
+      "name": "validate_bundle",
+      "ms": 32.9
+    }
+  ],
+  "failed_spans": [],
+  "counters": {},
+  "cache_hit_rate": null,
+  "langsmith_enabled": false
+}

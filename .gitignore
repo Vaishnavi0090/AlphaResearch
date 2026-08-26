@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Secrets - never commit
+.env
+*.key
+*.pem
+credentials.json
+
+# Caches
+data_cache/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+
+# Generated corpus (rebuilt by scripts/run_all.py)
+data/documents/*.txt
+
+.DS_Store
+.idea/
+.vscode/
