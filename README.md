@@ -1,6 +1,8 @@
-# FINRISK AI
+# AlphaResearch
 
 **Agentic quantitative portfolio & risk intelligence platform.**
+
+> The Python package is named `finrisk` (the project's original name was FINRISK AI).
 
 A factor research, portfolio construction, risk management and agentic decision-support system built around one rule: **the language model never produces a number that reaches a decision.**
 
@@ -27,7 +29,7 @@ python scripts/run_robustness.py --render
 
 ruff check . && black --check . && mypy finrisk/
 
-pytest                                        # 368 tests, ~3m35s
+pytest                                        # 375 tests, ~3m15s
 uvicorn finrisk.api.app:app --reload          # API at :8000/docs
 streamlit run finrisk/application/dashboard.py
 ```
@@ -147,13 +149,13 @@ Data                providers · point-in-time · validation
 
 **The LLM/quant barrier is structural.** Tools are the only interface; the report is assembled from state, never prose; the critic scrubs ungrounded figures. Tested by *injecting* fabrications — `test_critic_removes_fabricated_metric` plants a fake metric next to a real one and asserts only the fake is stripped.
 
-**Look-ahead is tested, not assumed.** A placebo control, plus checks on PIT fundamentals (2,400 records, 0 violations), factor truncation invariance (max diff 0.000e+00), per-date normalisation (|mean| ≤ 1.6e-15), and execution lag (exactly 1 session × 156 rebalances).
+**Look-ahead is tested, not assumed.** A placebo control, plus checks on PIT fundamentals (2,400 records, 0 violations), factor truncation invariance (max diff 0.000e+00), per-date normalisation (|mean| ≤ 1.6e-15), and execution lag (exactly 1 session × 156 rebalances). The placebo shows the pipeline *would* benefit from peeking; a separate **future-scramble test** shows it does not: replace every price, rate and filing after a cutoff with random noise and every portfolio weight decided before it is unchanged — for the factor-only strategy and for the full pipeline (regime overlay, covariance estimation, optimiser).
 
 **Ground truth makes factor claims falsifiable.** Because the DGP exposes latent states, tests verify factors *measure what they claim* rather than merely making money.
 
 **Negative results are documented, not buried.** Momentum's failure, the time-stability collapse, the factor-weight fragility, and the volatility-target overshoot all appear in the docs — and several are asserted in tests.
 
-**368 tests against closed-form values.** Portfolio variance against a hand-expanded quadratic form, parametric VaR against `norm.ppf`, drawdown against a hand-computed path.
+**375 tests against closed-form values.** Portfolio variance against a hand-expanded quadratic form, parametric VaR against `norm.ppf`, drawdown against a hand-computed path.
 
 ---
 
@@ -184,7 +186,7 @@ Data                providers · point-in-time · validation
 finrisk/          config data factors regimes alpha portfolio risk
                   backtesting rag tools agents evaluation api application
 scripts/          run_all.py  run_robustness.py
-tests/            14 modules, 368 tests
+tests/            14 modules, 375 tests
 docs/             14 documents
 evaluation/       results/ (json+csv)  reports/
 ```

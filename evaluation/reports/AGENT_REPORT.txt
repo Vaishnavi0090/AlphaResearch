@@ -1,4 +1,5 @@
 Trace:
+  plan_agent: 3 hypotheses registered
   factor_agent: universe=40
   market_agent: regime=risk_on_low_vol
   fundamental_agent: 10 records
@@ -27,21 +28,22 @@ Contradicting:
 Risk factors:
   - One-day CVaR at 95% is -2.47%; tail losses exceed the Gaussian estimate when returns are negatively skewed.
   - Effective number of positions is 5.00, indicating concentration despite the per-name weight cap.
-  - effective number of positions is 5.0 — portfolio is concentrated
 
 Grounded metrics: {"expected_volatility_ann": 0.145495, "expected_return_ann": 0.007739, "sharpe_ex_ante": -0.0868, "realised_volatility": 0.182874, "cvar_95": -0.024682, "var_95_hist": -0.019404, "max_drawdown": -0.309704, "effective_n": 5.0}
-Citations: 0
+Citations: 5
 
 Investment committee:
-  bull  support     The construction delivers an ex-ante Sharpe of -0.09 with volatility held to 14.55%. Walk-forward CA
-  bear  oppose      Maximum drawdown of n/a and one-day CVaR of -2.47% indicate the strategy's losses cluster. Average o
-  risk  conditional Realised volatility 18.29% against a target of 14.55%; effective N is 5.00. 1 concentration flag(s) 
-  quant conditional Signals are deterministic and reproducible from the config digest. Regime inference is filtered, not
+  bull  support     The construction delivers an ex-ante Sharpe of -0.09 with volatility held to 14.55%.
+  bear  oppose      One-day CVaR of -2.47% indicates losses cluster in the tail. Effective N of 5.00 leaves the portfolio concentr
+  risk  conditional Realised volatility 18.29% against a target of 14.55%; effective N is 5.00. 1 concentration flag(s) raised.
+  quant conditional Signals are deterministic and reproducible from the config digest. Regime inference is filtered, not smoothed 
   -> action: proceed_with_limits
 
 Validation: PASSED (no findings)
 
 Position explanations:
-  SY29 20.0% | Contributes 20.1% of portfolio volatility on a 20.0% weight; 17.5% of tail loss in the worst 5% of days. | evidence: 2 citations
-  SY14 20.0% | Contributes 21.0% of portfolio volatility on a 20.0% weight; 19.1% of tail loss in the worst 5% of days. | evidence: 2 citations
-  SY25 20.0% | Contributes 17.0% of portfolio volatility on a 20.0% weight; 16.6% of tail loss in the worst 5% of days. | evidence: 2 citations
+  SY29   20.0% | Contributes 20.1% of portfolio volatility on a 20.0% weight; 22.4% of loss in the worst 5% of days. Standalone volatility 26.2%, marginal contribution 15.6%: correlation absorbs 40% of its standalone risk (average correlation to the rest of the book +0.16). | confidence 0.67 | evidence: 2 citations
+  SY14   20.0% | Contributes 21.0% of portfolio volatility on a 20.0% weight; 19.2% of loss in the worst 5% of days. Standalone volatility 26.4%, marginal contribution 14.5%: correlation absorbs 45% of its standalone risk (average correlation to the rest of the book +0.12). | confidence 0.68 | evidence: 2 citations
+  SY25   20.0% | Contributes 17.0% of portfolio volatility on a 20.0% weight; 22.4% of loss in the worst 5% of days. Standalone volatility 22.8%, marginal contribution 12.2%: correlation absorbs 47% of its standalone risk (average correlation to the rest of the book +0.14). | confidence 0.78 | evidence: 2 citations
+  SY30   20.0% | Contributes 17.1% of portfolio volatility on a 20.0% weight; 5.6% of loss in the worst 5% of days. Standalone volatility 28.0%, marginal contribution 12.8%: correlation absorbs 54% of its standalone risk (average correlation to the rest of the book +0.05). | confidence 0.60 | evidence: 2 citations
+  SY34   20.0% | Contributes 24.7% of portfolio volatility on a 20.0% weight; 30.4% of loss in the worst 5% of days. Risk share exceeds weight share by +4.7% — this position consumes more risk budget than its size implies. Standalone volatility 28.8%, marginal contribution 16.7%: correlation absorbs 42% of its standalone risk (average correlation to the rest of the book +0.13). | confidence 0.67 | evidence: 2 citations

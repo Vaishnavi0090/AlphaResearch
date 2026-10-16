@@ -84,6 +84,8 @@ Z-scores are computed within each date's cross-section. Pooled normalisation acr
 
 The audit verifies each date's normalised panel has `|mean| <= 1.63e-15`, which is only possible if normalisation happened inside that date.
 
+Winsorization precedes z-scoring, both within-date. The order matters: z-scoring first and clipping second would leave the outlier's influence baked into the mean and standard deviation. (This is why the standard deviation can sit marginally below 1.)
+
 ### 5. Regime causality
 Two properties are asserted together:
 
@@ -104,8 +106,18 @@ On the synthetic dataset there is no survivorship bias — all 40 assets exist t
 
 For real-data runs, a universe drawn from currently-listed tickers **does** have survivorship bias, and this project does not solve it. Doing so requires a point-in-time constituent list (CRSP or similar). This is listed in `LIMITATIONS.md`, not hidden.
 
-### 8. Normalisation and winsorization order
-Winsorization precedes z-scoring, both within-date. The order matters: z-scoring first and clipping second would leave the outlier's influence baked into the mean and standard deviation.
+### 8. Shifted-signal placebo
+See *The placebo control* above. Unlike the other seven, this check is expected to show a large effect: it passes only if deliberately peeking one period ahead buys more than 1% CAGR and 0.10 Sharpe (`gap_cagr > 0.01 and gap_sharpe > 0.10`). If cheating bought little, the honest run would probably be leaking already.
+
+## Independent test: scrambling the future
+
+The placebo proves the pipeline is *sensitive* to look-ahead. It does not prove the honest run never peeks: a pipeline with a small leak would also show a large placebo gap. A second, independent test closes that gap from the other side.
+
+`test_signals_ignore_the_future` and `test_decisions_ignore_the_future` (in `tests/test_backtest.py`) take the dataset and replace **everything after a cutoff date with random noise**: prices, benchmark, risk-free rate, volumes and every filing published after the cutoff. They then assert that factor scores, regime states and the **portfolio weights decided on or before the cutoff are identical** to the honest run. A pipeline that uses only information available on each decision date cannot tell the difference.
+
+Measured on the full synthetic dataset (cutoff 2019-09-30, 94 decisions): maximum weight difference **0.00e+00** for each of the five ablation rungs B–F. The test runs two strategies: B (factor selection only) and F (the full pipeline: regime overlay, shrinkage covariance, optimiser, constraints).
+
+It also covers a class the placebo cannot: a leak in the *optimiser's inputs* (for example, estimating covariance from the full return history) leaves the factor signals untouched and so does not move the placebo, but it changes the weights and fails this test. That was checked by injecting exactly that leak and confirming the test fails.
 
 ## What is deliberately *not* claimed
 

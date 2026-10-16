@@ -21,6 +21,7 @@ stripped before it can reach a report.
 
 from __future__ import annotations
 
+import inspect
 import json
 import logging
 import os
@@ -86,21 +87,46 @@ class AnthropicLLM:
         except ImportError as exc:  # pragma: no cover - optional dep
             raise ImportError("pip install anthropic") from exc
         self._client = anthropic.Anthropic(api_key=key)
+        # Newer SDK releases and models no longer accept sampling parameters, and
+        # passing one raises TypeError (SDK) or a 400 (API). Send `temperature`
+        # only when this SDK still exposes it; `complete` also retries without it
+        # if the API itself rejects it. Determinism is then best-effort: the
+        # numbers never depend on it, because the critic validates every figure.
+        self._send_temperature = _accepts_kwarg(self._client.messages.create, "temperature")
 
     def complete(self, system: str, prompt: str, max_tokens: int = 1500) -> str:
         self.n_calls += 1
-        resp = self._client.messages.create(
-            model=self.model,
-            max_tokens=max_tokens,
-            temperature=self.temperature,
-            system=system,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        request: dict[str, Any] = {
+            "model": self.model,
+            "max_tokens": max_tokens,
+            "system": system,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if self._send_temperature:
+            request["temperature"] = self.temperature
+        try:
+            resp = self._client.messages.create(**request)
+        except Exception as exc:
+            if "temperature" not in request or "temperature" not in str(exc).lower():
+                raise
+            logger.warning("temperature rejected by API (%s); retrying without it", exc)
+            self._send_temperature = False
+            request.pop("temperature")
+            resp = self._client.messages.create(**request)
         usage = getattr(resp, "usage", None)
         if usage is not None:
             self.total_input_tokens += getattr(usage, "input_tokens", 0) or 0
             self.total_output_tokens += getattr(usage, "output_tokens", 0) or 0
         return "".join(block.text for block in resp.content if getattr(block, "type", "") == "text")
+
+
+def _accepts_kwarg(fn: Any, name: str) -> bool:
+    """True if `fn` can be called with keyword `name` (explicitly or via **kwargs)."""
+    try:
+        params = inspect.signature(fn).parameters.values()
+    except (TypeError, ValueError):  # pragma: no cover - builtins / C callables
+        return True
+    return any(p.name == name or p.kind is inspect.Parameter.VAR_KEYWORD for p in params)
 
 
 def build_llm(provider: str, model: str, temperature: float = 0.0) -> LLMClient:

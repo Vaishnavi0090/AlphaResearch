@@ -346,6 +346,94 @@ def test_graph_survives_a_failing_node(small_bundle, small_settings, as_of):
     assert report.research.sources == []  # no index, so no citations
 
 
+class _ExplodingLLM:
+    """Stands in for an API outage, rate limit or timeout."""
+
+    name = "exploding"
+
+    def complete(self, system: str, prompt: str, max_tokens: int = 1500) -> str:
+        raise RuntimeError("simulated API outage")
+
+
+def test_llm_outage_degrades_narration_not_numbers(registry, as_of):
+    """The model only narrates, so losing it must not abort the run or move a number."""
+    baseline, _ = run_research(registry, "assess", as_of=as_of)
+    report, _ = run_research(registry, "assess", as_of=as_of, llm=_ExplodingLLM())
+    assert report.research.thesis == "research synthesis unavailable"
+    assert report.portfolio.weights == baseline.portfolio.weights
+    assert report.risk == baseline.risk
+    # No committee opinions means no risk sign-off, so the verdict fails closed.
+    assert report.committee.recommended_action == "reject"
+
+
+def test_accepts_kwarg_reads_the_signature():
+    from finrisk.agents.llm import _accepts_kwarg
+
+    def explicit(*, temperature: float = 0.0): ...
+
+    def catch_all(**kwargs): ...
+
+    def without(*, max_tokens: int): ...
+
+    assert _accepts_kwarg(explicit, "temperature")
+    assert _accepts_kwarg(catch_all, "temperature")
+    assert not _accepts_kwarg(without, "temperature")
+
+
+def _fake_anthropic_response():
+    from types import SimpleNamespace
+
+    return SimpleNamespace(
+        content=[SimpleNamespace(type="text", text="ok")],
+        usage=SimpleNamespace(input_tokens=3, output_tokens=2),
+    )
+
+
+def test_anthropic_backend_retries_without_temperature(monkeypatch):
+    """Newer SDKs/models reject `temperature`; the backend must adapt, not crash."""
+    pytest.importorskip("anthropic")
+    from types import SimpleNamespace
+
+    from finrisk.agents.llm import AnthropicLLM
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    llm = AnthropicLLM()
+    seen: list[dict] = []
+
+    def create(**kwargs):
+        seen.append(dict(kwargs))
+        if "temperature" in kwargs:
+            raise TypeError("create() got an unexpected keyword argument 'temperature'")
+        return _fake_anthropic_response()
+
+    llm._client = SimpleNamespace(messages=SimpleNamespace(create=create))
+    llm._send_temperature = True
+
+    assert llm.complete("system", "prompt") == "ok"
+    assert "temperature" in seen[0] and "temperature" not in seen[1]
+    assert llm._send_temperature is False  # remembered: no wasted retry next time
+    llm.complete("system", "prompt")
+    assert "temperature" not in seen[-1] and len(seen) == 3
+
+
+def test_anthropic_backend_does_not_swallow_unrelated_errors(monkeypatch):
+    pytest.importorskip("anthropic")
+    from types import SimpleNamespace
+
+    from finrisk.agents.llm import AnthropicLLM
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    llm = AnthropicLLM()
+
+    def create(**kwargs):
+        raise RuntimeError("connection reset")
+
+    llm._client = SimpleNamespace(messages=SimpleNamespace(create=create))
+    llm._send_temperature = True
+    with pytest.raises(RuntimeError, match="connection reset"):
+        llm.complete("system", "prompt")
+
+
 # ------------------------------------------------------- structured research
 def test_plan_is_recorded_before_analysis(registry, as_of):
     """The plan must exist in the report, and must run first — a plan written

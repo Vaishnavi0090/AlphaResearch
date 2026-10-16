@@ -1,38 +1,46 @@
 {
-  "total_ms": 56295.4,
-  "n_spans": 7,
+  "total_ms": 182652.8,
+  "n_spans": 8,
   "slowest": [
     {
+      "name": "leakage_audit",
+      "ms": 67565.3
+    },
+    {
       "name": "benchmark_suite",
-      "ms": 18393.7
+      "ms": 50089.8
     },
     {
       "name": "ablation",
-      "ms": 18292.0
-    },
-    {
-      "name": "leakage_audit",
-      "ms": 14437.5
+      "ms": 47617.6
     },
     {
       "name": "regime_path",
-      "ms": 4679.6
+      "ms": 12286.0
+    },
+    {
+      "name": "agent_graph",
+      "ms": 4348.6
     },
     {
       "name": "build_corpus",
-      "ms": 349.7
-    },
-    {
-      "name": "load_bundle",
-      "ms": 110.0
+      "ms": 671.8
     },
     {
       "name": "validate_bundle",
-      "ms": 32.9
+      "ms": 59.2
+    },
+    {
+      "name": "load_bundle",
+      "ms": 14.4
     }
   ],
   "failed_spans": [],
-  "counters": {},
+  "counters": {
+    "tool_calls": 15.0,
+    "tool_failures": 0.0,
+    "tool_latency_ms": 3759.3
+  },
   "cache_hit_rate": null,
   "langsmith_enabled": false
 }

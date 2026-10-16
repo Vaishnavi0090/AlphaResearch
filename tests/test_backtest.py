@@ -213,6 +213,89 @@ def test_backtester_raises_on_injected_future_signal(small_bundle, small_setting
         bt.run(small_bundle, all_strategies()["B_factor_equal_weight"], tampered)
 
 
+@pytest.fixture(scope="module")
+def scrambled_future(small_bundle, small_settings, ctx_and_bt):
+    """The same bundle with EVERYTHING after a cutoff replaced by noise.
+
+    Prices, benchmark, risk-free rate, volumes and every filing published after
+    the cutoff are overwritten. A pipeline that uses only information available
+    on each decision date cannot tell the difference for decisions up to the cutoff.
+    """
+    import copy
+
+    bt, ctx = ctx_and_bt
+    cutoff = ctx.dates[int(len(ctx.dates) * 0.6)]
+    rng = np.random.default_rng(12345)
+    scr = copy.deepcopy(small_bundle)
+    after = scr.prices.index > cutoff
+    n = int(after.sum())
+    scr.prices.loc[after, :] = 100 * np.exp(
+        np.cumsum(rng.normal(0, 0.05, (n, scr.prices.shape[1])), axis=0)
+    )
+    scr.benchmark.loc[after] = 100 * np.exp(np.cumsum(rng.normal(0, 0.05, n)))
+    scr.risk_free.loc[after] = rng.uniform(0.0, 0.2, n)
+    scr.volumes.loc[after, :] = rng.uniform(1e3, 1e7, (n, scr.volumes.shape[1]))
+    published_later = pd.to_datetime(scr.fundamentals["available_from"]) > cutoff
+    numeric = [
+        c for c in scr.fundamentals.columns if c not in ("ticker", "period_end", "available_from")
+    ]
+    scr.fundamentals.loc[published_later, numeric] = rng.normal(
+        5, 50, (int(published_later.sum()), len(numeric))
+    )
+    assert n > 100 and published_later.any(), "the scramble must actually change something"
+
+    # Signals are only built for decision dates up to the cutoff; the scrambled
+    # future is still sitting in the bundle for any leak to find.
+    early = [d for d in ctx.dates if d <= cutoff]
+    return cutoff, scr, bt.prepare_context(scr, early)
+
+
+def test_signals_ignore_the_future(ctx_and_bt, scrambled_future):
+    """Factor scores and regimes at every decision date <= cutoff are unchanged
+    when all later data is replaced by noise."""
+    _, honest = ctx_and_bt
+    _, _, scrambled = scrambled_future
+    checked = 0
+    for d in scrambled.dates:
+        a = {t: s.composite for t, s in honest.factor_scores[d].items()}
+        b = {t: s.composite for t, s in scrambled.factor_scores[d].items()}
+        assert a == pytest.approx(b, abs=1e-12), f"factor scores at {d.date()} depend on the future"
+        ra, rb = honest.regimes.get(d), scrambled.regimes.get(d)
+        assert (ra is None) == (rb is None)
+        if ra is not None:
+            assert ra.regime == rb.regime
+            assert ra.confidence == pytest.approx(rb.confidence, abs=1e-9)
+        checked += 1
+    assert checked > 20
+
+
+@pytest.mark.parametrize("name", ["B_factor_equal_weight", "F_finrisk_full"])
+def test_decisions_ignore_the_future(small_bundle, ctx_and_bt, scrambled_future, name):
+    """Independent look-ahead test, complementary to the shifted-signal placebo.
+
+    The placebo shows the pipeline WOULD benefit from peeking. This shows it does
+    not peek: portfolio weights decided on or before the cutoff are identical when
+    everything after it is random noise. Covers the factor-only rung (B) and the
+    full pipeline (regime overlay, covariance estimation, optimiser, constraints).
+    """
+    bt, ctx = ctx_and_bt
+    cutoff, scr, scr_ctx = scrambled_future
+    strat = all_strategies()[name]
+    honest = {
+        e.decision_date: e
+        for e in bt.run(small_bundle, strat, ctx).events
+        if pd.Timestamp(e.decision_date) <= cutoff
+    }
+    scrambled = {e.decision_date: e for e in bt.run(scr, strat, scr_ctx).events}
+    assert set(honest) <= set(scrambled) and len(honest) > 20
+    for d, event in honest.items():
+        w1, w2 = event.weights, scrambled[d].weights
+        for t in set(w1) | set(w2):
+            assert w1.get(t, 0.0) == pytest.approx(
+                w2.get(t, 0.0), abs=1e-9
+            ), f"{name}: weight of {t} decided on {d} depends on post-cutoff data"
+
+
 def test_ic_estimates_are_clipped(ctx_and_bt):
     _, ctx = ctx_and_bt
     assert all(0.0 <= v <= 0.15 for v in ctx.ic_estimates.values())

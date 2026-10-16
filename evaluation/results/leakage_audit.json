@@ -3,11 +3,11 @@
     "name": "fundamental_availability",
     "passed": true,
     "severity": "error",
-    "detail": "560 records; 0 available before period end. Publication lag median 62d, range [45, 75]d.",
+    "detail": "2400 records; 0 available before period end. Publication lag median 61d, range [45, 73]d.",
     "evidence": {
-      "n_records": 560,
+      "n_records": 2400,
       "n_violations": 0,
-      "median_lag_days": 62.5
+      "median_lag_days": 61.0
     }
   },
   {
@@ -33,19 +33,19 @@
     "name": "cross_sectional_normalisation",
     "passed": true,
     "severity": "error",
-    "detail": "per-date normalised panels have |mean| <= 2.61e-15 and |std - 1| <= 0.000, consistent with normalisation inside each date's cross-section rather than pooled across history (winsorization accounts for the small std deviation).",
+    "detail": "per-date normalised panels have |mean| <= 1.63e-15 and |std - 1| <= 0.000, consistent with normalisation inside each date's cross-section rather than pooled across history (winsorization accounts for the small std deviation).",
     "evidence": {
-      "max_abs_mean": 2.6145752229922437e-15,
-      "max_std_deviation": 3.3306690738754696e-16
+      "max_abs_mean": 1.63202784619898e-15,
+      "max_std_deviation": 2.220446049250313e-16
     }
   },
   {
     "name": "regime_causality",
     "passed": true,
     "severity": "error",
-    "detail": "filtered state at 2018-12-05 is 'risk_on_low_vol' (conf 0.997) whether or not future data is present (full-sample: 'risk_on_low_vol', conf 0.997). Max |filtered - smoothed| = 0.864, confirming smoothing genuinely uses future information and is therefore excluded.",
+    "detail": "filtered state at 2020-07-10 is 'risk_off_high_vol' (conf 1.000) whether or not future data is present (full-sample: 'risk_off_high_vol', conf 1.000). Max |filtered - smoothed| = 0.872, confirming smoothing genuinely uses future information and is therefore excluded.",
     "evidence": {
-      "filtered_vs_smoothed_max_diff": 0.8636738402807852,
+      "filtered_vs_smoothed_max_diff": 0.8722376286809295,
       "regime_stable_under_truncation": true
     }
   },
@@ -53,9 +53,9 @@
     "name": "execution_lag",
     "passed": true,
     "severity": "error",
-    "detail": "60 rebalances; 0 executed on or before the decision date. Lag in sessions: min 1, max 1.",
+    "detail": "156 rebalances; 0 executed on or before the decision date. Lag in sessions: min 1, max 1.",
     "evidence": {
-      "n_events": 60,
+      "n_events": 156,
       "min_lag": 1,
       "max_lag": 1
     }
@@ -64,10 +64,24 @@
     "name": "survivorship_bias",
     "passed": true,
     "severity": "info",
-    "detail": "synthetic universe: all 20 assets exist for the full sample by construction, so there is no survivorship bias AND no delisting risk. Real-data runs with a fixed current ticker list DO have survivorship bias.",
+    "detail": "synthetic universe: all 40 assets exist for the full sample by construction, so there is no survivorship bias AND no delisting risk. Real-data runs with a fixed current ticker list DO have survivorship bias.",
     "evidence": {
-      "n_assets": 20,
-      "n_full_history": 20
+      "n_assets": 40,
+      "n_full_history": 40
+    }
+  },
+  {
+    "name": "shifted_signal_placebo",
+    "passed": true,
+    "severity": "error",
+    "detail": "honest: CAGR 6.18%, Sharpe 0.33. one-period look-ahead: CAGR 33.22%, Sharpe 1.85. Advantage from cheating: +27.04% CAGR, +1.53 Sharpe. The barrier is doing real work.",
+    "evidence": {
+      "honest_cagr": 0.061831115723840036,
+      "cheat_cagr": 0.3322391702267036,
+      "honest_sharpe": 0.3252820634291384,
+      "cheat_sharpe": 1.853230016292174,
+      "gap_cagr": 0.27040805450286354,
+      "gap_sharpe": 1.5279479528630355
     }
   }
 ]

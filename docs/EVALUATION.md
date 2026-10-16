@@ -220,16 +220,16 @@ good and the documentation says so.
 
 ## 8. Test suite
 
-**368 tests, 3m35s, zero warnings.** The count below is generated from the suite, not maintained by hand.
+**375 tests, ~3m15s (1 vCPU), zero warnings.** The count below is generated from the suite, not maintained by hand.
 
 | Module | Tests | Focus |
 |---|---|---|
-| `test_agents` | 33 | **Critic catches injected fabrications**; plan and hypothesis grading |
+| `test_agents` | 37 | **Critic catches injected fabrications**; plan and hypothesis grading; LLM outage and SDK-compatibility handling |
 | `test_risk_metrics` | 33 | Closed-form validation of every formula |
 | `test_optimizer` | 32 | Constraint enforcement incl. turnover and risk budget |
 | `test_factors` | 30 | Construction, sign conventions, normalisation |
 | `test_hybrid_rag` | 30 | Embeddings, vector store, RRF fusion, provenance |
-| `test_backtest` | 24 | Execution lag, costs, drift, leakage assertion |
+| `test_backtest` | 27 | Execution lag, costs, drift, leakage assertion; **future-scramble invariance** |
 | `test_position_attribution` | 24 | Alpha, risk, diversification, derived confidence |
 | `test_regimes` | 24 | HMM correctness, causality guarantee |
 | `test_data` | 23 | PIT discipline, cleaning, validation |

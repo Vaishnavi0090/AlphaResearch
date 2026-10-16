@@ -419,7 +419,7 @@ class FinanceSupervisor:
                 _facts("citations", state.get("citations", [])),
             ]
         )
-        raw = self.llm.complete(system, prompt, self.tools.ctx.settings.agents.max_tokens)
+        raw = self._complete(system, prompt, self.tools.ctx.settings.agents.max_tokens)
         parsed = parse_json_response(raw)
         try:
             parsed["sources"] = [
@@ -434,6 +434,24 @@ class FinanceSupervisor:
         state["research"] = conclusion.model_dump(mode="json")
         self._note(state, f"research_agent: llm={self.llm.name}")
         return state
+
+    def _complete(self, system: str, prompt: str, max_tokens: int) -> str:
+        """Call the LLM without letting it take the numerical pipeline down.
+
+        The model only narrates; every number in the report already came from a
+        deterministic tool. So an API error, rate limit or timeout must degrade
+        the narration, not abort the run. An empty string flows into the
+        existing schema-validation fallbacks ("research synthesis unavailable";
+        committee roles skipped). With no committee opinions there is no risk
+        sign-off, and the verdict fails closed to "reject".
+        """
+        try:
+            return self.llm.complete(system, prompt, max_tokens)
+        except Exception as exc:
+            logger.warning(
+                "LLM call failed (%s: %s); continuing without it", type(exc).__name__, exc
+            )
+            return ""
 
     def committee_agent(self, state: GraphState) -> GraphState:
         """Adversarial review: four independent roles, then a debate node.
@@ -465,7 +483,7 @@ class FinanceSupervisor:
                 "object: role, stance (support|oppose|conditional|neutral), argument, "
                 "cited_metrics, concerns."
             )
-            raw = self.llm.complete(system, base, 900)
+            raw = self._complete(system, base, 900)
             parsed = parse_json_response(raw)
             parsed.setdefault("role", role)
             try:

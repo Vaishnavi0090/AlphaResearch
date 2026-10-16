@@ -346,6 +346,13 @@ def main() -> int:
             lines += [f"  -> action: {report.committee.recommended_action}"]
         if report.validation:
             lines += ["", render_validation(report.validation)]
+        if report.explanations:
+            lines += ["", "Position explanations:"]
+            lines += [
+                f"  {e.ticker:<6}{e.weight:>6.1%} | {e.risk_note} | "
+                f"confidence {e.confidence:.2f} | evidence: {len(e.evidence)} citations"
+                for e in report.explanations
+            ]
         text = "\n".join(lines)
         print(text)
         (REPORTS / "AGENT_REPORT.txt").write_text(text)

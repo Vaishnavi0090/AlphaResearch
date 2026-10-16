@@ -98,7 +98,7 @@ def compute_position_attribution(
         if others:
             ow = np.abs(w[others])
             denom = ow.sum()
-            avg_corr = float((corr[i, others] * ow).sum() / denom) if denom > 1e-12 else 0.0
+            avg_corr = float((corr[i, others] * ow).sum()) / float(denom) if denom > 1e-12 else 0.0
         else:
             avg_corr = 0.0
 

@@ -1,18 +1,20 @@
 Data Leakage Audit
 ==============================================================================
 [PASS] fundamental_availability
-        560 records; 0 available before period end. Publication lag median 62d, range [45, 75]d.
+        2400 records; 0 available before period end. Publication lag median 61d, range [45, 73]d.
 [PASS] asof_accessor
         sampled 12 dates; 0 returned unpublished filings
 [PASS] factor_truncation_invariance
         max absolute difference between full-sample and truncated factor values across 6 dates: 0.000e+00
 [PASS] cross_sectional_normalisation
-        per-date normalised panels have |mean| <= 2.61e-15 and |std - 1| <= 0.000, consistent with normalisation inside each date's cross-section rather than pooled across history (winsorization accounts for the small std deviation).
+        per-date normalised panels have |mean| <= 1.63e-15 and |std - 1| <= 0.000, consistent with normalisation inside each date's cross-section rather than pooled across history (winsorization accounts for the small std deviation).
 [PASS] regime_causality
-        filtered state at 2018-12-05 is 'risk_on_low_vol' (conf 0.997) whether or not future data is present (full-sample: 'risk_on_low_vol', conf 0.997). Max |filtered - smoothed| = 0.864, confirming smoothing genuinely uses future information and is therefore excluded.
+        filtered state at 2020-07-10 is 'risk_off_high_vol' (conf 1.000) whether or not future data is present (full-sample: 'risk_off_high_vol', conf 1.000). Max |filtered - smoothed| = 0.872, confirming smoothing genuinely uses future information and is therefore excluded.
 [PASS] execution_lag
-        60 rebalances; 0 executed on or before the decision date. Lag in sessions: min 1, max 1.
+        156 rebalances; 0 executed on or before the decision date. Lag in sessions: min 1, max 1.
 [PASS] survivorship_bias
-        synthetic universe: all 20 assets exist for the full sample by construction, so there is no survivorship bias AND no delisting risk. Real-data runs with a fixed current ticker list DO have survivorship bias.
+        synthetic universe: all 40 assets exist for the full sample by construction, so there is no survivorship bias AND no delisting risk. Real-data runs with a fixed current ticker list DO have survivorship bias.
+[PASS] shifted_signal_placebo
+        honest: CAGR 6.18%, Sharpe 0.33. one-period look-ahead: CAGR 33.22%, Sharpe 1.85. Advantage from cheating: +27.04% CAGR, +1.53 Sharpe. The barrier is doing real work.
 ------------------------------------------------------------------------------
-7 checks, 0 failures -> AUDIT PASSED
+8 checks, 0 failures -> AUDIT PASSED

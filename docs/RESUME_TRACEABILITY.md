@@ -55,7 +55,7 @@ Every claim below maps to code, a test, and a measured number. Nothing here is a
 > *Code:* `finrisk/portfolio/optimizer.py`
 > *Test:* `test_turnover_constraint_binds`, `test_risk_budget_constraint_binds`
 
-> **Wrote 368 tests covering numerical correctness against closed-form values, point-in-time data discipline, and adversarial validation of the agent layer.** Full suite runs in 3m35s; `ruff`, `black` and `mypy` pass clean across 55 source files.
+> **Wrote 375 tests covering numerical correctness against closed-form values, point-in-time data discipline, and adversarial validation of the agent layer.** Full suite runs in about 3m15s; `ruff`, `black` and `mypy` pass clean across 55 source files.
 
 ## Claims I am deliberately NOT making
 
